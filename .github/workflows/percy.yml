@@ -1,0 +1,25 @@
+name: Percy visual builds
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  percy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Builds design A (approved as baseline), then design B (left for review).
+      - run: npm run percy:all
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
